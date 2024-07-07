@@ -13,3 +13,5 @@ git clone git@github.com:pewepskei/videoStream.git
 Day 0: Create a working framework with a working CRUD method
 
 Day 1: Created Comments and Profiles database, barely functional but looks good to me
+
+Day 2: Added some styling
