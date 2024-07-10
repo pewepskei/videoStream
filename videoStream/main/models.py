@@ -10,7 +10,7 @@ thumb_extensions = ["png", "jpg", "jpeg"]
 # Create your models here.
 class Video(models.Model):
     uploader    = models.ForeignKey(User, on_delete=models.CASCADE)
-    title       = models.CharField(max_length=20)
+    title       = models.CharField(max_length=100)
     description = models.TextField()
     video_file  = models.FileField(upload_to=video_path, 
                                 validators = [FEV(allowed_extensions=video_extensions)])
