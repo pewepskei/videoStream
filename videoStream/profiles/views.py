@@ -6,18 +6,14 @@ from main.models import Video
 
 # Create your views here.
 class profileView(View):
-    def get(self, request, pk, *args, **kwargs):
-        profile = get_object_or_404(Profile, pk=pk)
-        video = Video.objects.all().filter(uploader=pk).order_by('-date_posted')
-        # video = Video.objects.all().order_by('-date_posted')
-        print(pk)
+    def get(self, request,  *args, **kwargs):
+        profile = get_object_or_404(Profile, user=request.user)
+        video = Video.objects.all().filter(uploader=request.user).order_by('-date_posted')
 
         context = {
             'profile': profile,
             'videos': video
         }
-        print(profile)
-        print(video)
 
         return render(request, 'profiles/profile.html', context)
     
@@ -31,5 +27,10 @@ class updateProfile(UpdateView):
             form.instance.image = 'uploads/profile_pics/default.jpg'
         return super().form_valid(form)
     
+    def get_object(self, queryset=None):
+        # Override get_object to fetch Profile based on username
+        return Profile.objects.get(user=self.request.user)
+    
     def get_success_url(self) -> str:
-        return reverse('profile', kwargs={'pk': self.object.pk})
+        user = self.kwargs.get('user')
+        return reverse('profile', kwargs={'user': user})

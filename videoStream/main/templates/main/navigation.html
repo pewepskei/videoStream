@@ -28,8 +28,8 @@
         <img src="{{ user.profile.image.url }}" width="35" height="35" class="d-inline-block rounded-circle" alt="Profile">
       </a>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-        <a class="dropdown-item" href="{% url 'profile' user.profile.pk %}">View Profile</a>
-        <a class="dropdown-item" href="{% url 'update-profile' user.profile.pk %}">Edit Profile</a>
+        <a class="dropdown-item" href="{% url 'profile' user.profile.user %}">View Profile</a>
+        <a class="dropdown-item" href="{% url 'update-profile' user.profile.user %}">Edit Profile</a>
         {% url 'account_email' as email_url %}
         {% if email_url %}
           <a class="dropdown-item" href="{{ email_url }}">Change Email</a>

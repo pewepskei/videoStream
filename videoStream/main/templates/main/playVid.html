@@ -3,6 +3,9 @@
 
 {% block title %}{{object.title}}{% endblock title%}
 
+
+<input type="hidden" id="play-video-url" data-url="{% url 'play-video' %}" />
+
 {% block content %}
 	<div class="container">
 		<div class="row mt-5">
@@ -22,9 +25,8 @@
 					<div class="col-md-6 text-muted">
 						<p>{{ object.date_posted | date:"M d, Y" }}</p>
 					</div>
-					<div class="col-md-6 text-muted text-right">
+					<div title="Share" class="col-md-6 text-muted text-right">
 						<ion-icon class="video-icons" name="share-social-outline" type="button"  data-toggle="modal" data-target="#exampleModal">
-                        Share
                     </ion-icon>
                     
                     <!-- Modal -->
@@ -50,8 +52,8 @@
 			</div>
 		</div>
 		{% if object.uploader == user %}
-			<a class="video-icons icon-color" href="{% url 'update-video' object.pk %}"><ion-icon name="pencil-outline"></ion-icon></a>
-			<a class="video-icons icon-color" href="{% url 'delete-video' object.pk %}"><ion-icon name="close-outline"></ion-icon></a>
+			<a class="video-icons icon-color" title="Edit Video" href="{% url 'update-video' object.pk %}"><ion-icon name="pencil-outline"></ion-icon></a>
+			<a class="video-icons icon-color" title="Delete Video" href="{% url 'delete-video' object.pk %}"><ion-icon name="close-outline"></ion-icon></a>
 		{% endif %}
 	</div>
     <div class="col-md-4 col-sm-12 col-xs-12">
@@ -70,26 +72,77 @@
 <div class="row mt-3">
 	<div class="col-md-8 col-sm-12">
 		{% if user.is_authenticated %}
-		<form method="POST">
+		<form id="comment-form" method="POST">
 			{% csrf_token %}
 			<legend class="border-bottom mb-4">Leave a Comment!</legend>
 			{{ form | crispy }}
-			<button class="btn btn-outline-info btn-block">Post</button>
+			<input type="submit" class="btn btn-outline-info btn-block" value="Post"/>
 		</form>
 		{% else %}
 		<a class="btn btn-outline-info btn-block" href="{% url 'account_login' %}">Sign In To Post a Comment!</a>
 		{% endif %}
 	</div>
 </div>
-
-{% for comment in comments %}
-<div class="row mt-3">
-	<div class="col-md-8 col-sm-12 border-bottom">
-		<h5>{{ comment.user }}</h5>
-		<p>{{ comment.comment }}</p>
+<div id="comment-section">
+	{% for comment in comments %}
+	<div class="row mt-3">
+		<div class="col-md-8 col-sm-12 border-bottom">
+			<h5>{{ comment.user }}</h5>
+			<p>{{ comment.comment }}</p>
+		</div>
 	</div>
+	{% endfor %}
 </div>
-{% endfor %}
-</div>
-
 {% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(document).on('submit', '#comment-form', function(e) {
+			e.preventDefault();
+
+			console.log('entering ajax')
+
+			$.ajax({
+				type:'POST',
+				url:$('#play-video-url').attr("data-url"),
+				data:{
+					comment:$('#id_comment').val(),
+					csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+				},
+				success: function (data){
+
+					console.log(data)
+					console.log(data.user)
+					console.log(data.comment)
+					console.log(data.commentuser)
+					
+					var newDiv = document.createElement('div');
+
+					var commentHTML = `
+						<div class="row mt-3">
+							<div class="col-md-8 col-sm-12 border-bottom">
+								<h5>${data.user}</h5>
+								<p>${data.comment}</p>
+							</div>
+						</div>
+					`;
+
+					// Set the content and style of the new div
+					newDiv.innerHTML = commentHTML;
+				
+					// Get the parent element of the comments section
+					var commentsSection = document.getElementById('comment-section');
+				
+					// Insert the new div before the comments section
+					commentsSection.parentNode.insertBefore(newDiv, commentsSection);
+					console.log('finished adding new comment')
+				}
+			});
+			
+			var textbox = document.getElementById('id_comment');
+            textbox.value = '';
+		});
+	});
+</script>
+{% endblock scripts %}

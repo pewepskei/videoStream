@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views import View
+from django.http import HttpResponse, JsonResponse
 from .models import Video, Comments
 from .forms import CommentForm
 
@@ -46,6 +47,11 @@ class viewVideo(View):
 
         form = CommentForm(request.POST)
         if form.is_valid():
+            user = str(self.request.user)
+            response = {
+                'user'    : user,
+                'comment' : form.cleaned_data['comment'],
+            }
             comment = Comments(
                 user = self.request.user,
                 comment = form.cleaned_data['comment'],
@@ -61,7 +67,7 @@ class viewVideo(View):
             'form': form,
             'categories': categories
         }
-        return render(request, 'main/playVid.html', context)
+        return JsonResponse(response)
 
 class updateVideo(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Video

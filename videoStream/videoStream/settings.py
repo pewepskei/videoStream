@@ -157,3 +157,5 @@ LOGIN_REDIRECT_URL = 'home'
 
 # Custom Forms
 ACCOUNT_SIGNUP_FORM_CLASS = 'profiles.forms.ProfileForm'
+
+ACCOUNT_LOGOUT_REDIRECT_URL= '/accounts/login'
