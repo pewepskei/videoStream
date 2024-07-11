@@ -36,4 +36,4 @@ class Comments(models.Model):
     created_on = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"User: {self.user} | {self.created_on.strftime("%b %d %Y %I:%M %p")}"
+        return f"User: {self.user} | {self.created_on.strftime('%b %d %Y %I:%M %p')}"

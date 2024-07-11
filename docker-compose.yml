@@ -1,0 +1,8 @@
+services:
+  web:
+    build:
+      context: ./videoStream
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
