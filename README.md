@@ -1,11 +1,4 @@
-This README will server as my documentation on the process of building this project
-
-The goal is to create a youtube-like or netflix-ish kinda video platform
--> has users
--> users can upload, edit, delete their own videos
--> will decide on what features will be added on videos (like like/dislike or share link)
-
-## CLone the Repository
+## Clone the Repository
 
 ```
 git clone git@github.com:pewepskei/videoStream.git
@@ -59,6 +52,8 @@ Some Features:
 - Add, Edit, Delete and View videos uploaded
 - Added a comment feature
 - Profiles are custom URLs
+
+NOTE: I haven't setup the email server yet, so the verification link will actually be posted in the console
 
 Day 0: Create a working framework with a working CRUD method
 
