@@ -1,8 +1,37 @@
+version: '3.8'
+
 services:
-  web:
-    build:
+  redis:
+    image: redis:7.4-rc2
+
+  django:
+    container_name: django
+    build: 
       context: ./videoStream
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./videoStream:/usr/src/app/
+    port:
+      - 8000:8000
+    depends_on:
+      - redis
+      
+  celery:
+    container_name: celery
+    build: 
+      context: ./videoStream
+      dockerfile: Dockerfile
+    volumes:
+      - ./videoStream:/usr/src/app/
+    depends_on:
+      - redis
+
+# services:
+#   web:
+#     build:
+#       context: ./videoStream
+#       dockerfile: Dockerfile
+#     ports:
+#       - "8000:8000"
 
