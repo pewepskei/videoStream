@@ -5,8 +5,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormVi
 from django.views.generic.list import ListView
 from django.views import View
 from django.http import HttpResponse, JsonResponse
-from .models import Video, Comments
+from django.forms import modelformset_factory
+from .models import Video, Comments, Category
 from .forms import CommentForm, VideoForm
+from .tasks import uploadVideoFiles
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -17,44 +19,51 @@ class home(ListView):
     order_by = '-date_posted'
 
 class uploadVideo(LoginRequiredMixin, CreateView):
-    print("Now inside uploadVideo")
     model  = Video
     form_class = VideoForm
-    #fields = ['title', 'description', 'video_file', 'thumbnail','category']
+    # fields = ['title', 'description', 'video_file', 'thumbnail','category']
     template_name = 'main/uploadVid.html'
-    success_url = reverse_lazy('play-video')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Create formset with VideoForm
+        VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=2)
+        context['formset'] = VideoFormSet(queryset=Video.objects.none())
+        return context
+    
     def post(self, request, *args, **kwargs):
-        print("Received POST Method")
         print(request.POST)
         print(request.FILES)
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        print("Checking if form is valid")
         form.instance.uploader = self.request.user
-        print(f"Form uploader: {form.instance.uploader}")
+        # titles = self.request.POST.getlist('title')
+        # descriptions = self.request.POST.getlist('description')
+        # video_files = self.request.FILES.getlist('video_file')
+        # thumbnails = self.request.FILES.getlist('thumbnail')
+        # categories = self.request.POST.getlist('category')
+
+        uploadVideoFiles.delay(self.request.user, self.request.POST, self.request.FILES)
+
+        # for i in range(len(titles) - 1):
+        #     video_instance = Video(
+        #         title=titles[i],
+        #         description=descriptions[i],
+        #         video_file=video_files[i],
+        #         thumbnail=thumbnails[i],
+        #         category=Category.objects.get(id=categories[i]),
+        #         uploader=self.request.user
+        #     )
+        #     video_instance.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        print("Invalid Form")
+        print("Form is invalid")
         return super().form_invalid(form)
 
     def get_success_url(self) -> str:
-        print("Running get_success_url")
         return reverse('play-video', kwargs={'pk': self.object.pk})
-
-def upload_video(request):
-    if request.method == 'POST':
-        form = VideoForm(request.POST, request.FILES)
-        print("received POST Method")
-        files = request.FILES.getlist('file')
-        for file in files:
-            print(f"Files are: {file}")
-
-    else:
-        form = VideoForm
-    return render (request, 'main/addVideo.html', {'form': form})
 
 class viewVideo(View):
     def get(self, request, pk, *args, **kwargs):
@@ -62,12 +71,12 @@ class viewVideo(View):
 
         form = CommentForm()
         comments = Comments.objects.filter(video=video).order_by('-created_on')
-        categories = Video.objects.filter(category=video.category)[:15]
+        # categories = Video.objects.filter(category=video.category)[:15]
         context = {
             'object': video,
             'comments': comments,
             'form': form,
-            'categories': categories
+            # 'categories': categories
         }
         return render(request, 'main/playVid.html', context)
 

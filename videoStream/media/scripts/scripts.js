@@ -1,7 +1,7 @@
 // script.js
 
 const dropArea = document.getElementById('drop-area');
-const fileElem = document.getElementById('fileElem');
+const fileElem = document.getElementById('id_video_file');
 const fileList = document.getElementById('file-list');
 const continueBtn = document.getElementById('continueBtn');
 const videoDetails = document.getElementById('videoDetails');
