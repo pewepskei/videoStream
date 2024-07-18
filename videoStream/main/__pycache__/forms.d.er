@@ -1,0 +1,7 @@
+##[pylyzer] failed /home/pdumoran/myRepos/videoStream/videoStream/main/forms.py 1721263444 257
+.___v_desugar_1: Never
+.forms: Never
+.CommentForm: ClassType
+.CommentForm <: Failure
+.CommentForm.comment: Never
+

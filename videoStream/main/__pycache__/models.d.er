@@ -1,0 +1,36 @@
+##[pylyzer] failed /home/pdumoran/myRepos/videoStream/videoStream/main/models.py 1721263444 1524
+.___v_desugar_1: Never
+.models: Never
+.___v_desugar_2: Never
+.timezone: Never
+.___v_desugar_3: Never
+.FEV: {<failure>}
+.___v_desugar_4: Never
+.User: {<failure>}
+.video_path: {"uploads/video_files"}
+.thumb_path: {"uploads/thumb_files"}
+.video_extensions: List!({"mp4"}, 1)
+.thumb_extensions: List!({"jpeg", "jpg", "png"}, 3)
+.Video: ClassType
+.Video <: Failure
+.Video.uploader: Never
+.Video.title: Never
+.Video.description: Never
+.Video.video_file: Never
+.Video.thumbnail: Never
+.Video.date_posted: Never
+.Video.category: Never
+
+.Category: ClassType
+.Category <: Failure
+.Category.name: Never
+.Category.__str__: (self: .Category) -> Never
+
+.Comments: ClassType
+.Comments <: Failure
+.Comments.user: Never
+.Comments.video: Never
+.Comments.comment: Never
+.Comments.created_on: Never
+.Comments.__str__: (self: .Comments) -> Never
+
