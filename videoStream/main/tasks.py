@@ -9,7 +9,7 @@ def uploadVideoFiles(form_data):
     video_files = form_data['video_files']
     thumbnails = form_data['thumbnails']
     categories = form_data['categories']
-    uploader = form_data['uploader']
+    uploader = form_data['uploader_id']
 
     # Iterate through the data lists and save each Video instance
     for i in range(len(titles)):
@@ -19,6 +19,6 @@ def uploadVideoFiles(form_data):
             video_file=video_files[i],
             thumbnail=thumbnails[i],
             category=Category.objects.get(id=categories[i]),
-            uploader=uploader
+            uploader=User.objects.get(id=uploader)
         )
         video_instance.save()
