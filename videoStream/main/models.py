@@ -19,6 +19,9 @@ class Video(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     category    = models.ForeignKey('Category', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
+
 class Category(models.Model):
     name = models.CharField(max_length=30)
 

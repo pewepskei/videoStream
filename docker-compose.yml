@@ -7,7 +7,7 @@ services:
     build: 
       context: ./videoStream
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
+    command: python -u manage.py runserver 0.0.0.0:8000
     volumes:
       - ./videoStream:/usr/src/app/
     ports:
@@ -19,7 +19,8 @@ services:
     container_name: celery
     build: 
       context: ./videoStream
-      dockerfile: Dockerfile
+    command: celery -A videoStream worker -l INFO
+      #command: celery --help
     volumes:
       - ./videoStream:/usr/src/app/
     depends_on:

@@ -1,11 +1,12 @@
 from django.shortcuts import render, reverse
+from django.urls import reverse_lazy
 from django.db.models import Q
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
 from django.views import View
 from django.http import HttpResponse, JsonResponse
 from .models import Video, Comments
-from .forms import CommentForm
+from .forms import CommentForm, VideoForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -16,17 +17,45 @@ class home(ListView):
     order_by = '-date_posted'
 
 class uploadVideo(LoginRequiredMixin, CreateView):
+    print("Now inside uploadVideo")
     model  = Video
-    fields = ['title', 'description', 'video_file', 'thumbnail','category']
+    form_class = VideoForm
+    #fields = ['title', 'description', 'video_file', 'thumbnail','category']
     template_name = 'main/uploadVid.html'
+    success_url = reverse_lazy('play-video')
+
+    def post(self, request, *args, **kwargs):
+        print("Received POST Method")
+        print(request.POST)
+        print(request.FILES)
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        print("Checking if form is valid")
         form.instance.uploader = self.request.user
+        print(f"Form uploader: {form.instance.uploader}")
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        print("Invalid Form")
+        return super().form_invalid(form)
+
     def get_success_url(self) -> str:
+        print("Running get_success_url")
         return reverse('play-video', kwargs={'pk': self.object.pk})
-    
+
+def upload_video(request):
+    if request.method == 'POST':
+        form = VideoForm(request.POST, request.FILES)
+        print("received POST Method")
+        files = request.FILES.getlist('file')
+        for file in files:
+            print(f"Files are: {file}")
+
+    else:
+        form = VideoForm
+    return render (request, 'main/addVideo.html', {'form': form})
+
 class viewVideo(View):
     def get(self, request, pk, *args, **kwargs):
         video = Video.objects.get(pk=pk)
