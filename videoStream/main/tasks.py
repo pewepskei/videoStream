@@ -1,21 +1,24 @@
 from celery import shared_task
 from .models import Video, Category
+from django.contrib.auth.models import User
 
 @shared_task
-def uploadVideoFiles(user, post, files):
-    titles = post.getlist('title')
-    descriptions = post.getlist('description')
-    video_files = files.getlist('video_file')
-    thumbnails = files.getlist('thumbnail')
-    categories = files.getlist('category')
+def uploadVideoFiles(form_data):
+    titles = form_data['titles']
+    descriptions = form_data['descriptions']
+    video_files = form_data['video_files']
+    thumbnails = form_data['thumbnails']
+    categories = form_data['categories']
+    uploader = form_data['uploader']
 
-    for i in range(len(titles) - 1):
+    # Iterate through the data lists and save each Video instance
+    for i in range(len(titles)):
         video_instance = Video(
             title=titles[i],
             description=descriptions[i],
             video_file=video_files[i],
             thumbnail=thumbnails[i],
             category=Category.objects.get(id=categories[i]),
-            uploader=user
+            uploader=uploader
         )
         video_instance.save()
