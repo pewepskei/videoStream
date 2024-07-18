@@ -50,14 +50,20 @@ class uploadVideo(LoginRequiredMixin, CreateView):
         thumbnails = self.request.FILES.getlist('thumbnail')
         categories = self.request.POST.getlist('category')
 
+        print(titles)
+        print(descriptions)
+        print(video_files)
+        print(thumbnails)
+        print(categories)
+
         # Prepare form data to pass to Celery task
         form_data = {
             'titles': titles,
             'descriptions': descriptions,
-            'video_files': video_files,
-            'thumbnails': thumbnails,
+            'video_files': [vf.temporary_file_path() for vf in video_files],
+            'thumbnails': [tn.temporary_file_path() for tn in thumbnails],
             'categories': categories,
-            'uploader': self.request.user.id  # Assuming uploader is related to User model
+            'uploader_id': self.request.user.id,  # Pass the user ID
         }
 
         uploadVideoFiles.delay(form_data)
