@@ -12,6 +12,9 @@ Then bring up the app
 docker-compose up -d --build
 ```
 
+Access the project at
+``localhost:8000``
+
 or
 
 ```
@@ -47,6 +50,7 @@ Install the dependencies:
 ```bash
 pip install -r videoStream/requirements.txt
 ```
+
 
 ## Version 2
 Major addition:
