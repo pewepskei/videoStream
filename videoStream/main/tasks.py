@@ -3,13 +3,13 @@ from .models import Video, Category
 from django.core.files.storage import FileSystemStorage
 from django.core.files import File
 from django.contrib.auth.models import User
+import logging
 
-from pathlib import Path
-
+logger = logging.getLogger(__name__)
 @shared_task
 def uploadVideoFiles(id, video_file, thumbnail):
     video = Video.objects.get(id=id)
-    print(f"Uploading video {video.title}")
+    logger.info(f"Uploading video {video.title}")
 
     video_path = f"server/disk/{video.title}.mp4"
     thumb_path = f"server/disk/{video.title}.png"
@@ -21,3 +21,4 @@ def uploadVideoFiles(id, video_file, thumbnail):
         f.write(thumbnail)
 
     return "Done Uploading"
+

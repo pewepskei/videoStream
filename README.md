@@ -1,3 +1,4 @@
+## Notes added regarding v2
 ## Clone the Repository
 
 ```
@@ -46,6 +47,22 @@ Install the dependencies:
 ```bash
 pip install -r videoStream/requirements.txt
 ```
+
+## Version 2
+Major addition:
+- Added Redis as message broker
+- Added Celery as Async Task Executor
+- Allowed multiple video input
+- Added folder `/test_files` containing sample files for ease of testing
+- Currently only the uploading task is delegated to celery
+
+To check celery logs use this command
+```
+docker logs -f celery
+```
+
+## Version 1
+Created branch for version 1 called `v1`
 
 Some Features:
 - Create and Manage own Profile or Account

@@ -105,7 +105,7 @@ function showVideoDetailsForm() {
           <label for="description">Description:</label><br>
           <textarea class="form-control" id="description" name="description" rows="4" cols="50" required></textarea><br><br>
           <label for="description">Thumbnail:</label><br>
-          <input class="form-control" type="file" id="thumbnail" name="thumbnail">
+          <input class="form-control" type="file" id="thumbnail" accept="image/*" name="thumbnail">
          </div>
     `;
     videoForms.appendChild(formDiv);

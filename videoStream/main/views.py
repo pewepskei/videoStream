@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
 from django.views import View
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.forms import modelformset_factory
 from .models import Video, Comments, Category
 from .forms import CommentForm, VideoForm
@@ -50,7 +50,7 @@ class uploadVideo(LoginRequiredMixin, CreateView):
             print(f"{titles[i]} processed by celery {celery_worker.id}")
             video_instance.save()
 
-        return reverse('play-video', kwargs={'pk': video_instance.pk})
+        return HttpResponseRedirect (reverse('home'))
 
     def form_invalid(self, form):
         return super().form_invalid(form)
@@ -64,12 +64,12 @@ class viewVideo(View):
 
         form = CommentForm()
         comments = Comments.objects.filter(video=video).order_by('-created_on')
-        categories = Video.objects.filter(category=video.category)[:15]
+        # categories = Video.objects.filter(category=video.category)[:15]
         context = {
             'object': video,
             'comments': comments,
             'form': form,
-            'categories': categories
+            # 'categories': categories
         }
         return render(request, 'main/playVid.html', context)
 
