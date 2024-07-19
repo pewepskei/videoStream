@@ -35,7 +35,7 @@ class uploadVideo(LoginRequiredMixin, CreateView):
         descriptions = self.request.POST.getlist('description')
         video_files = self.request.FILES.getlist('video_file')
         thumbnails = self.request.FILES.getlist('thumbnail')
-        categories = self.request.POST.getlist('category')
+        # categories = self.request.POST.getlist('category')
 
         for i in range(len(titles)):
             video_instance = Video.objects.create(
@@ -43,14 +43,14 @@ class uploadVideo(LoginRequiredMixin, CreateView):
                 description=descriptions[i],
                 video_file=video_files[i],
                 thumbnail=thumbnails[i],
-                category=Category.objects.get(id=categories[i]),
+                # category=Category.objects.get(id=categories[i]),
                 uploader=self.request.user
             )
             celery_worker = uploadVideoFiles.delay(video_instance.id, video_files[i].read(), thumbnails[i].read())
             print(f"{titles[i]} processed by celery {celery_worker.id}")
             video_instance.save()
 
-        return render(self.request, 'main/home.html')
+        return reverse('play-video', kwargs={'pk': video_instance.pk})
 
     def form_invalid(self, form):
         return super().form_invalid(form)

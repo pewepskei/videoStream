@@ -46,7 +46,7 @@ class VideoForm(forms.ModelForm):
 
     class Meta:
         model = Video
-        fields = ['title', 'description', 'video_file', 'thumbnail', 'category']  # Specify the fields from the model
+        fields = ['title', 'description', 'video_file', 'thumbnail']  # Specify the fields from the model
 
     def is_valid(self) -> bool:
         return True

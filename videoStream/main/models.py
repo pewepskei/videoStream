@@ -17,7 +17,6 @@ class Video(models.Model):
     thumbnail   = models.FileField(upload_to=thumb_path, 
                                 validators = [FEV(allowed_extensions=thumb_extensions)])
     date_posted = models.DateTimeField(default=timezone.now)
-    category    = models.ForeignKey('Category', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
