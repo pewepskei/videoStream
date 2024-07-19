@@ -1,24 +1,23 @@
 from celery import shared_task
 from .models import Video, Category
+from django.core.files.storage import FileSystemStorage
+from django.core.files import File
 from django.contrib.auth.models import User
 
-@shared_task
-def uploadVideoFiles(form_data):
-    titles = form_data['titles']
-    descriptions = form_data['descriptions']
-    video_files = form_data['video_files']
-    thumbnails = form_data['thumbnails']
-    categories = form_data['categories']
-    uploader = form_data['uploader_id']
+from pathlib import Path
 
-    # Iterate through the data lists and save each Video instance
-    for i in range(len(titles)):
-        video_instance = Video(
-            title=titles[i],
-            description=descriptions[i],
-            video_file=video_files[i],
-            thumbnail=thumbnails[i],
-            category=Category.objects.get(id=categories[i]),
-            uploader=User.objects.get(id=uploader)
-        )
-        video_instance.save()
+@shared_task
+def uploadVideoFiles(id, video_file, thumbnail):
+    video = Video.objects.get(id=id)
+    print(f"Uploading video {video.title}")
+
+    video_path = f"server/disk/{video.title}.mp4"
+    thumb_path = f"server/disk/{video.title}.png"
+
+    with open(video_path, 'wb') as f:
+        f.write(video_file)
+
+    with open(thumb_path, 'wb') as f:
+        f.write(thumbnail)
+
+    return "Done Uploading"

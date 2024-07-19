@@ -9,6 +9,8 @@ from django.forms import modelformset_factory
 from .models import Video, Comments, Category
 from .forms import CommentForm, VideoForm
 from .tasks import uploadVideoFiles
+from django.core.files import uploadedfile, File
+from django.core.files.storage import FileSystemStorage
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -23,65 +25,34 @@ class uploadVideo(LoginRequiredMixin, CreateView):
     form_class = VideoForm
     # fields = ['title', 'description', 'video_file', 'thumbnail','category']
     template_name = 'main/uploadVid.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Create formset with VideoForm
-        VideoFormSet = modelformset_factory(Video, form=VideoForm, extra=2)
-        context['formset'] = VideoFormSet(queryset=Video.objects.none())
-        return context
     
     def post(self, request, *args, **kwargs):
-        print(request.POST)
-        print(request.FILES)
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.uploader = self.request.user
-        # titles = self.request.POST.getlist('title')
-        # descriptions = self.request.POST.getlist('description')
-        # video_files = self.request.FILES.getlist('video_file')
-        # thumbnails = self.request.FILES.getlist('thumbnail')
-        # categories = self.request.POST.getlist('category')
-
         titles = self.request.POST.getlist('title')
         descriptions = self.request.POST.getlist('description')
         video_files = self.request.FILES.getlist('video_file')
         thumbnails = self.request.FILES.getlist('thumbnail')
         categories = self.request.POST.getlist('category')
 
-        print(titles)
-        print(descriptions)
-        print(video_files)
-        print(thumbnails)
-        print(categories)
+        for i in range(len(titles)):
+            video_instance = Video.objects.create(
+                title=titles[i],
+                description=descriptions[i],
+                video_file=video_files[i],
+                thumbnail=thumbnails[i],
+                category=Category.objects.get(id=categories[i]),
+                uploader=self.request.user
+            )
+            celery_worker = uploadVideoFiles.delay(video_instance.id, video_files[i].read(), thumbnails[i].read())
+            print(f"{titles[i]} processed by celery {celery_worker.id}")
+            video_instance.save()
 
-        # Prepare form data to pass to Celery task
-        form_data = {
-            'titles': titles,
-            'descriptions': descriptions,
-            'video_files': [vf.temporary_file_path() for vf in video_files],
-            'thumbnails': [tn.temporary_file_path() for tn in thumbnails],
-            'categories': categories,
-            'uploader_id': self.request.user.id,  # Pass the user ID
-        }
-
-        uploadVideoFiles.delay(form_data)
-
-        # for i in range(len(titles) - 1):
-        #     video_instance = Video(
-        #         title=titles[i],
-        #         description=descriptions[i],
-        #         video_file=video_files[i],
-        #         thumbnail=thumbnails[i],
-        #         category=Category.objects.get(id=categories[i]),
-        #         uploader=self.request.user
-        #     )
-        #     video_instance.save()
-        return super().form_valid(form)
+        return render(self.request, 'main/home.html')
 
     def form_invalid(self, form):
-        print("Form is invalid")
         return super().form_invalid(form)
 
     def get_success_url(self) -> str:
@@ -93,12 +64,12 @@ class viewVideo(View):
 
         form = CommentForm()
         comments = Comments.objects.filter(video=video).order_by('-created_on')
-        # categories = Video.objects.filter(category=video.category)[:15]
+        categories = Video.objects.filter(category=video.category)[:15]
         context = {
             'object': video,
             'comments': comments,
             'form': form,
-            # 'categories': categories
+            'categories': categories
         }
         return render(request, 'main/playVid.html', context)
 
@@ -132,7 +103,7 @@ class viewVideo(View):
 class updateVideo(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Video
     fields = ['title', 'description', 'thumbnail']
-    template_name = 'main/uploadVid.html'
+    template_name = 'main/update.html'
 
     def get_success_url(self) -> str:
         return reverse('play-video', kwargs={'pk': self.object.pk})
