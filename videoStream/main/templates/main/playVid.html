@@ -56,18 +56,6 @@
 			<a class="video-icons icon-color" title="Delete Video" href="{% url 'delete-video' object.pk %}"><ion-icon name="close-outline"></ion-icon></a>
 		{% endif %}
 	</div>
-    <div class="col-md-4 col-sm-12 col-xs-12">
-        <h3 class="text-center mb-3">Suggestions</h3>
-        {% for category in categories %}
-            {% if object.pk != category.pk %}
-                <div class="position-relative d-flex flex-row mb-5 py-2 border-bottom">
-                    <img src="{{ category.thumbnail.url }}" width="100" height="50" />
-                    <h5 class="pl-3">{{ category.title }}</h5>
-                    <a href="{% url 'play-video' category.pk %}" class="stretched-link"></a>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
 </div>
 <div class="row mt-3">
 	<div class="col-md-8 col-sm-12">

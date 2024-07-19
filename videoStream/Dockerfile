@@ -6,14 +6,14 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Set the working directory in the container
-WORKDIR /code
+WORKDIR /usr/src/app/
 
 # Install dependencies
-COPY requirements.txt /code/
+COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install -r requirements.txt
 
 # Copy the current directory contents into the container at /code/
-COPY . /code/
+COPY . /usr/src/app/
 
 # Run migrations and collect static files (if needed)
 # RUN python manage.py migrate
@@ -23,5 +23,5 @@ COPY . /code/
 EXPOSE 8000
 
 # Run the Django application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "-u", "manage.py", "runserver", "0.0.0.0:8000"]
 

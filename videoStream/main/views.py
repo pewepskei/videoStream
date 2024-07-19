@@ -1,11 +1,16 @@
 from django.shortcuts import render, reverse
+from django.urls import reverse_lazy
 from django.db.models import Q
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic.list import ListView
 from django.views import View
-from django.http import HttpResponse, JsonResponse
-from .models import Video, Comments
-from .forms import CommentForm
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.forms import modelformset_factory
+from .models import Video, Comments, Category
+from .forms import CommentForm, VideoForm
+from .tasks import uploadVideoFiles
+from django.core.files import uploadedfile, File
+from django.core.files.storage import FileSystemStorage
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -17,28 +22,54 @@ class home(ListView):
 
 class uploadVideo(LoginRequiredMixin, CreateView):
     model  = Video
-    fields = ['title', 'description', 'video_file', 'thumbnail','category']
+    form_class = VideoForm
+    # fields = ['title', 'description', 'video_file', 'thumbnail','category']
     template_name = 'main/uploadVid.html'
+    
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.uploader = self.request.user
-        return super().form_valid(form)
+        titles = self.request.POST.getlist('title')
+        descriptions = self.request.POST.getlist('description')
+        video_files = self.request.FILES.getlist('video_file')
+        thumbnails = self.request.FILES.getlist('thumbnail')
+        # categories = self.request.POST.getlist('category')
+
+        for i in range(len(titles)):
+            video_instance = Video.objects.create(
+                title=titles[i],
+                description=descriptions[i],
+                video_file=video_files[i],
+                thumbnail=thumbnails[i],
+                # category=Category.objects.get(id=categories[i]),
+                uploader=self.request.user
+            )
+            celery_worker = uploadVideoFiles.delay(video_instance.id, video_files[i].read(), thumbnails[i].read())
+            print(f"{titles[i]} processed by celery {celery_worker.id}")
+            video_instance.save()
+
+        return HttpResponseRedirect (reverse('home'))
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
     def get_success_url(self) -> str:
         return reverse('play-video', kwargs={'pk': self.object.pk})
-    
+
 class viewVideo(View):
     def get(self, request, pk, *args, **kwargs):
         video = Video.objects.get(pk=pk)
 
         form = CommentForm()
         comments = Comments.objects.filter(video=video).order_by('-created_on')
-        categories = Video.objects.filter(category=video.category)[:15]
+        # categories = Video.objects.filter(category=video.category)[:15]
         context = {
             'object': video,
             'comments': comments,
             'form': form,
-            'categories': categories
+            # 'categories': categories
         }
         return render(request, 'main/playVid.html', context)
 
@@ -72,7 +103,7 @@ class viewVideo(View):
 class updateVideo(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Video
     fields = ['title', 'description', 'thumbnail']
-    template_name = 'main/uploadVid.html'
+    template_name = 'main/update.html'
 
     def get_success_url(self) -> str:
         return reverse('play-video', kwargs={'pk': self.object.pk})

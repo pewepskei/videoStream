@@ -10,8 +10,23 @@
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <legend class="border-bottom mb-4">Upload Video</legend>
-                {{ form | crispy }}
-                <button class="btn btn-outline-info btn-block mt-3" type="submit">Submit</button>
+                <div id="drop-area" class="drop-area">
+                  <div>Drag and drop your videos here</div>
+                    <div>or</div>
+                    <div>
+                        <input type="file" id="id_video_file" multiple accept="video/*" name="video_file" style="display:none">
+                        <label class="btn btn-outline-info mt-3" for="id_video_file" id="fileSelect">Click here to select files</label>
+                    </div>
+                </div>
+                <div id="file-list">
+                  <p>No videos uploaded yet</p>
+                </div>
+                <button class="btn btn-outline-info mt-3" id="continueBtn" style="display: none;">Continue</button>
+                <div id="videoDetails" style="display: none;">
+                    <h3>Video Details</h3>
+                    <div id="videoForms"></div>
+                </div>
+                <button id="submit-button" style="display: none;" class="btn btn-outline-info btn-block mt-3" type="submit">Submit</button>
             </form>
         </div>
     </div>
