@@ -1,4 +1,4 @@
-## Notes added regarding v2
+## Notes regarding the version 2 is added below
 ## Clone the Repository
 
 ```
